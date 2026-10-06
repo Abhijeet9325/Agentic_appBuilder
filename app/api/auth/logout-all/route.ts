@@ -3,7 +3,8 @@ import { cookies } from "next/headers";
 
 import { connectDB } from "@/lib/db";
 import Session from "@/lib/models/Session";
-import { hashToken } from "@/lib/token";
+
+import { verifyRefreshToken } from "@/lib/jwt";
 
 export async function POST() {
   try {
@@ -23,32 +24,24 @@ export async function POST() {
       );
     }
 
-    const refreshTokenHash = hashToken(refreshToken);
+    const decoded = verifyRefreshToken(refreshToken);
 
     await connectDB();
 
-    const session = await Session.findOne({
-      refreshTokenHash,
-      revoked: false,
-    });
-
-    if (!session) {
-      return NextResponse.json(
-        {
-          message: "Session not found",
+    await Session.updateMany(
+      {
+        user: decoded.id,
+        revoked: false,
+      },
+      {
+        $set: {
+          revoked: true,
         },
-        {
-          status: 400,
-        }
-      );
-    }
-
-    session.revoked = true;
-
-    await session.save();
+      }
+    );
 
     const response = NextResponse.json({
-      message: "Logged out successfully",
+      message: "Logged out from all devices successfully",
     });
 
     response.cookies.set("accessToken", "", {
@@ -69,14 +62,14 @@ export async function POST() {
 
     return response;
   } catch (error) {
-    console.error("LOGOUT_ERROR:", error);
+    console.error("LOGOUT_ALL_ERROR:", error);
 
     return NextResponse.json(
       {
-        message: "Something went wrong",
+        message: "Invalid or expired refresh token",
       },
       {
-        status: 500,
+        status: 401,
       }
     );
   }

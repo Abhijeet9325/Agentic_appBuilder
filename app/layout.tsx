@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { DM_Sans, Inter, Lora } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/src/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/Header";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -36,9 +36,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         defaultTheme="dark"
         enableSystem
         disableTransitionOnChange>
-          <Header/>
         <main>
           {children}
+          <Toaster position="top-right" />
         </main>
       </ThemeProvider>
       </body>

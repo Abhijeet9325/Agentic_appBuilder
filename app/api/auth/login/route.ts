@@ -4,10 +4,14 @@ import { z } from "zod";
 
 import { connectDB } from "@/lib/db";
 import User from "@/lib/models/User";
+import Session from "@/lib/models/Session";
+
 import {
   generateAccessToken,
   generateRefreshToken,
 } from "@/lib/jwt";
+
+import { hashToken } from "@/lib/token";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -64,6 +68,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Generate tokens
     const accessToken = generateAccessToken(
       user._id.toString()
     );
@@ -71,6 +76,19 @@ export async function POST(request: NextRequest) {
     const refreshToken = generateRefreshToken(
       user._id.toString()
     );
+
+    // Hash refresh token before storing it
+    const refreshTokenHash = hashToken(refreshToken);
+
+    // Create session
+    await Session.create({
+      user: user._id,
+      refreshTokenHash,
+      revoked: false,
+      expiresAt: new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000
+      ),
+    });
 
     const response = NextResponse.json({
       message: "Login successful",

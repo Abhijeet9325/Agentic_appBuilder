@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-import { verifyRefreshToken, generateAccessToken } from "@/lib/jwt";
 import { connectDB } from "@/lib/db";
-import User from "@/lib/models/User";
+import Session from "@/lib/models/Session";
+
+import {
+  verifyRefreshToken,
+  generateAccessToken,
+} from "@/lib/jwt";
+
+import { hashToken } from "@/lib/token";
 
 export async function POST() {
   try {
@@ -25,14 +31,34 @@ export async function POST() {
 
     const decoded = verifyRefreshToken(refreshToken);
 
+    const refreshTokenHash = hashToken(refreshToken);
+
     await connectDB();
 
-    const user = await User.findById(decoded.userId);
+    const session = await Session.findOne({
+      user: decoded.id,
+      refreshTokenHash,
+      revoked: false,
+    });
 
-    if (!user) {
+    if (!session) {
       return NextResponse.json(
         {
-          message: "User not found",
+          message: "Session is invalid or revoked",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
+    if (session.expiresAt < new Date()) {
+      session.revoked = true;
+      await session.save();
+
+      return NextResponse.json(
+        {
+          message: "Session expired",
         },
         {
           status: 401,
@@ -41,30 +67,28 @@ export async function POST() {
     }
 
     const newAccessToken = generateAccessToken(
-      user._id.toString()
+      decoded.id
     );
 
     const response = NextResponse.json({
       message: "Access token refreshed",
     });
 
-    response.cookies.set(
-      "accessToken",
-      newAccessToken,
-      {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 15,
-        path: "/",
-      }
-    );
+    response.cookies.set("accessToken", newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 15,
+      path: "/",
+    });
 
     return response;
-  } catch {
+  } catch (error) {
+    console.error("REFRESH_ERROR:", error);
+
     return NextResponse.json(
       {
-        message: "Invalid or expired refresh token",
+        message: "Invalid refresh token",
       },
       {
         status: 401,

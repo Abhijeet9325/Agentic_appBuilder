@@ -1,3 +1,4 @@
+import "server-only";
 import { cookies } from "next/headers";
 import User from "./models/User";
 import { connectDB } from "@/lib/db";
@@ -17,7 +18,7 @@ export async function getCurrentUser() {
 
     await connectDB();
 
-    const user = await User.findById(decoded.userId).select(
+    const user = await User.findById(decoded.id).select(
       "-password"
     );
 

@@ -3,18 +3,10 @@ import jwt from "jsonwebtoken";
 const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET!;
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
 
-if (!ACCESS_SECRET) {
-  throw new Error("JWT_ACCESS_SECRET is not defined");
-}
-
-if (!REFRESH_SECRET) {
-  throw new Error("JWT_REFRESH_SECRET is not defined");
-}
-
 export function generateAccessToken(userId: string) {
   return jwt.sign(
     {
-      userId,
+      id: userId,
     },
     ACCESS_SECRET,
     {
@@ -26,7 +18,7 @@ export function generateAccessToken(userId: string) {
 export function generateRefreshToken(userId: string) {
   return jwt.sign(
     {
-      userId,
+      id: userId,
     },
     REFRESH_SECRET,
     {
@@ -37,12 +29,12 @@ export function generateRefreshToken(userId: string) {
 
 export function verifyAccessToken(token: string) {
   return jwt.verify(token, ACCESS_SECRET) as {
-    userId: string;
+    id: string;
   };
 }
 
 export function verifyRefreshToken(token: string) {
   return jwt.verify(token, REFRESH_SECRET) as {
-    userId: string;
+    id: string;
   };
 }
