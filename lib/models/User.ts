@@ -5,8 +5,16 @@ export interface IUser extends Document {
   email: string;
   password: string;
   imageUrl?: string;
+
   credits: number;
   plan: "FREE" | "STARTER" | "PRO";
+
+  // Razorpay
+  razorpayCustomerId?: string;
+  razorpaySubscriptionId?: string;
+  subscriptionStatus?: "ACTIVE" | "PENDING" | "CANCELLED" | "EXPIRED";
+  subscriptionCurrentPeriodEnd?: Date;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,6 +54,31 @@ const userSchema = new Schema<IUser>(
       type: String,
       enum: ["FREE", "STARTER", "PRO"],
       default: "FREE",
+    },
+
+    // =========================
+    // Razorpay
+    // =========================
+
+    razorpayCustomerId: {
+      type: String,
+      default: undefined,
+    },
+
+    razorpaySubscriptionId: {
+      type: String,
+      default: undefined,
+    },
+
+    subscriptionStatus: {
+      type: String,
+      enum: ["ACTIVE", "PENDING", "CANCELLED", "EXPIRED"],
+      default: undefined,
+    },
+
+    subscriptionCurrentPeriodEnd: {
+      type: Date,
+      default: undefined,
     },
   },
   {

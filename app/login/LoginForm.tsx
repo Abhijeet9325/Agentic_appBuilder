@@ -1,38 +1,37 @@
 "use client";
+
 import { toast } from "sonner";
 import { FormEvent, useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginForm() {
-
     const searchParams = useSearchParams();
     const router = useRouter();
 
     const toastShown = useRef(false);
 
-useEffect(() => {
-    const reason = searchParams.get("reason");
+    useEffect(() => {
+        const reason = searchParams.get("reason");
 
-    if (reason === "not-logged-in" && !toastShown.current) {
-        toastShown.current = true;
+        if (reason === "not-logged-in" && !toastShown.current) {
+            toastShown.current = true;
 
-        toast.error("You are not logged in", {
-            id: "not-logged-in-toast",
-            description: "Please log in to continue.",
-            duration: 3000,
-        });
+            toast.error("You are not logged in", {
+                id: "not-logged-in-toast",
+                description: "Please log in to continue.",
+                duration: 3000,
+            });
 
-        window.history.replaceState({}, "", "/login");
-    }
-}, [searchParams]);
-
-
+            window.history.replaceState({}, "", "/login");
+        }
+    }, [searchParams]);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -81,6 +80,7 @@ useEffect(() => {
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* Email */}
                     <input
                         type="email"
                         placeholder="Email"
@@ -90,21 +90,33 @@ useEffect(() => {
                         required
                     />
 
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 outline-none"
-                        required
-                    />
+                    {/* Password */}
+                    <div className="relative">
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 pr-16 outline-none"
+                            required
+                        />
 
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-white/50 transition hover:text-white"
+                        >
+                            {showPassword ? "Hide" : "Show"}
+                        </button>
+                    </div>
+                    {/* Error */}
                     {error && (
                         <p className="text-sm text-red-400">
                             {error}
                         </p>
                     )}
 
+                    {/* Login */}
                     <button
                         type="submit"
                         disabled={loading}

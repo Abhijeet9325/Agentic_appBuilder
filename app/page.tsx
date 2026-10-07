@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import Header from "@/components/Header";
 import AuthToast from "@/components/AuthToast";
+import Pricing from "@/components/pricing";
 
 export default async function Home() {
   const user = await getCurrentUser();
@@ -165,6 +166,8 @@ export default async function Home() {
           <Logo name="ramp" />
         </div>
       </section>
+      {/* Pricing */}
+      <Pricing />
     </main>
   </>
   );
