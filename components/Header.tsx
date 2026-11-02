@@ -1,5 +1,6 @@
 "use client";
-
+import DashboardClient from "@/app/dashboard/DashboardClient";
+import Link from "next/link";
 import { useState } from "react";
 
 interface User {
@@ -103,6 +104,14 @@ const Header = ({ user }: HeaderProps) => {
                                     {user.plan} Plan
                                 </p>
                             </div>
+                            {/* Dashboard */}
+                            <Link
+                                href="/dashboard"
+                                onClick={() => setIsOpen(false)}
+                                className="block w-full rounded-lg px-3 py-2.5 text-xs text-white/70 transition hover:bg-white/5 hover:text-white"
+                            >
+                                Dashboard
+                            </Link>
 
                             {/* Logout */}
                             <button

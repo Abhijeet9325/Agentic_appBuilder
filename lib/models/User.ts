@@ -6,6 +6,10 @@ export interface IUser extends Document {
   password: string;
   imageUrl?: string;
 
+  // Password reset
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
+
   credits: number;
   plan: "FREE" | "STARTER" | "PRO";
 
@@ -38,6 +42,19 @@ const userSchema = new Schema<IUser>(
     password: {
       type: String,
       required: true,
+    },
+
+    // Password reset
+    resetPasswordToken: {
+      type: String,
+      default: undefined,
+      select: false,
+    },
+
+    resetPasswordExpires: {
+      type: Date,
+      default: undefined,
+      select: false,
     },
 
     imageUrl: {

@@ -109,6 +109,16 @@ export default function LoginForm() {
                             {showPassword ? "Hide" : "Show"}
                         </button>
                     </div>
+
+                    <div className="mt-2 flex justify-end">
+                        <Link
+                            href="/forgot-password"
+                            className="text-sm text-blue-400 transition hover:text-blue-300"
+                        >
+                            Forgot password?
+                        </Link>
+                    </div>
+
                     {/* Error */}
                     {error && (
                         <p className="text-sm text-red-400">
